@@ -1,8 +1,14 @@
 #cta-badge-container img {
 
-	width:  100%;
+	width:  95%;
 	height: auto;
+	margin: 2.5%;
 
+}
+#cta-badge-container{
+	webkit-box-shadow: inset 0 0 0 1px rgba(0,0,0,.1);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,.1);
+	background-color: #eee;
 }
 
 #cta-badge-info {
