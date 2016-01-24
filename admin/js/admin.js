@@ -59,7 +59,7 @@ function renderMediaUploader( $ ) {
 		}
 
 		// After that, set the properties of the image and display it
-		$( '#featured-footer-image-container' )
+		$( '#cta-badge-container' )
 			.children( 'img' )
 				.attr( 'src', json.url )
 				.attr( 'alt', json.caption )
@@ -69,19 +69,19 @@ function renderMediaUploader( $ ) {
 			.removeClass( 'hidden' );
 
 		// Next, hide the anchor responsible for allowing the user to select an image
-		$( '#featured-footer-image-container' )
+		$( '#cta-badge-container' )
 			.prev()
 			.hide();
 
 		// Display the anchor for the removing the featured image
-		$( '#featured-footer-image-container' )
+		$( '#cta-badge-container' )
 			.next()
 			.show();
 
 		// Store the image's information into the meta data fields
-		$( '#footer-thumbnail-src' ).val( json.url );
-		$( '#footer-thumbnail-title' ).val( json.title );
-		$( '#footer-thumbnail-alt' ).val( json.title );
+		$( '#cta-badge-src' ).val( json.url );
+		$( '#cta-badge-title' ).val( json.title );
+		$( '#cta-badge-alt' ).val( json.title );
 
 	});
 
@@ -104,23 +104,23 @@ function resetUploadForm( $ ) {
 	'use strict';
 
 	// First, we'll hide the image
-	$( '#featured-footer-image-container' )
+	$( '#cta-badge-container' )
 		.children( 'img' )
 		.hide();
 
 	// Then display the previous container
-	$( '#featured-footer-image-container' )
+	$( '#cta-badge-container' )
 		.prev()
 		.show();
 
 	// We add the 'hidden' class back to this anchor's parent
-	$( '#featured-footer-image-container' )
+	$( '#cta-badge-container' )
 		.next()
 		.hide()
 		.addClass( 'hidden' );
 
 	// Finally, we reset the meta data input fields
-	$( '#featured-footer-image-info' )
+	$( '#cta-badge-info' )
 		.children()
 		.val( '' );
 
@@ -135,20 +135,20 @@ function resetUploadForm( $ ) {
  * @param    object    $    A reference to the jQuery object
  * @since    1.0.0
  */
-function renderFeaturedImage( $ ) {
+function renderImage( $ ) {
 
 	/* If a thumbnail URL has been associated with this image
 	 * Then we need to display the image and the reset link.
 	 */
-	if ( '' !== $.trim ( $( '#footer-thumbnail-src' ).val() ) ) {
+	if ( '' !== $.trim ( $( '#cta-badge-src' ).val() ) ) {
 
-		$( '#featured-footer-image-container' ).removeClass( 'hidden' );
+		$( '#cta-badge-container' ).removeClass( 'hidden' );
 
-		$( '#set-footer-thumbnail' )
+		$( '#set-cta-badge' )
 			.parent()
 			.hide();
 
-		$( '#remove-footer-thumbnail' )
+		$( '#remove-cta-badge' )
 			.parent()
 			.removeClass( 'hidden' );
 
@@ -161,9 +161,9 @@ function renderFeaturedImage( $ ) {
 
 	$(function() {
 
-		renderFeaturedImage( $ );
+		renderImage( $ );
 
-		$( '#set-footer-thumbnail' ).on( 'click', function( evt ) {
+		$( '#set-cta-badge' ).on( 'click', function( evt ) {
 
 			// Stop the anchor's default behavior
 			evt.preventDefault();
@@ -173,7 +173,7 @@ function renderFeaturedImage( $ ) {
 
 		});
 
-		$( '#remove-footer-thumbnail' ).on( 'click', function( evt ) {
+		$( '#remove-cta-badge' ).on( 'click', function( evt ) {
 
 			// Stop the anchor's default behavior
 			evt.preventDefault();

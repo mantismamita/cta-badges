@@ -3,24 +3,14 @@
 /**
  * The dashboard-specific functionality of the plugin.
  *
- * @link       http://tommcfarlin.com
- * @since      0.1.0
- *
- * @package    Acme_Footer_Image
- * @subpackage Acme_Footer_Image/admin
- */
-
-/**
- * The dashboard-specific functionality of the plugin.
- *
  * Defines the plugin name, version, the meta box functionality
  * and the JavaScript for loading the Media Uploader.
  *
- * @package    Acme_Footer_Image
- * @subpackage Acme_Footer_Image/admin
- * @author     Tom McFarlin <tom@tommcfarlin.com>
+ * @package    CTA_Badges
+ * @subpackage CTA_Badges/admin
+ * @author     Kirsten Cassidy <mantismamita@gmail.com>
  */
-class Acme_Footer_Image {
+class CTA_Badges {
 
 	/**
 	 * The ID of this plugin.
@@ -47,7 +37,7 @@ class Acme_Footer_Image {
 	 */
 	public function __construct() {
 
-		$this->name = 'acme-footer-image';
+		$this->name = 'cta-badges';
 		$this->version = '1.0.0';
 
 	}
@@ -64,7 +54,9 @@ class Acme_Footer_Image {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
 		add_action( 'save_post', array( $this, 'save_post' ) );
-		add_action( 'the_content', array( $this, 'the_content' ) );
+		add_action( 'hostel_mama_after_logo', array( $this, 'cta_content' ) );
+		add_action('admin_menu', array($this,'add_plugin_admin_menu'));
+
 
 	}
 
@@ -74,21 +66,34 @@ class Acme_Footer_Image {
 	 * @since 0.1.0
 	 */
 	public function add_meta_box() {
+		global $post;
+		$screens = array( 'page' );
+		if ($post->ID == '702' || $post->ID == '138') {
+			foreach ( $screens as $screen ) {
 
-		$screens = array( 'post', 'page' );
-
-		foreach ( $screens as $screen ) {
-
-			add_meta_box(
-				$this->name,
-				'Footer Featured Image',
-				array( $this, 'display_featured_footer_image' ),
-				$screen,
-				'side'
-			);
-
+				add_meta_box(
+					$this->name,
+					'CTA Badge Image',
+					array( $this, 'display_cta_badge' ),
+					$screen,
+					'side'
+				);
+			}
 		}
+	}
 
+	public function validate($input) {
+		// All checkboxes inputs
+		$valid = array();
+
+		//Cleanup
+		$valid['image'] = (isset($input['cleanup']) && !empty($input['image'])) ? 1 : 0;
+
+		return $valid;
+	}
+
+	public function options_update() {
+		register_setting($this->name, $this->name , array($this, 'validate'));
 	}
 
 	/**
@@ -125,6 +130,37 @@ class Acme_Footer_Image {
 
 	}
 
+	public function add_plugin_admin_menu() {
+
+		add_options_page( 'CTA Badges Setup', 'CTA Badges', 'manage_options', $this->name, array($this, 'display_plugin_setup_page')
+		);
+	}
+
+	/**
+	 * Add settings action link to the plugins page.
+	 *
+	 * @since    1.0.0
+	 */
+
+	public function add_action_links( $links ) {
+
+		$settings_link = array(
+			'<a href="' . admin_url( 'options-general.php?page=' . $this->name ) . '">' . __('Settings', $this->name) . '</a>',
+		);
+		return array_merge(  $settings_link, $links );
+
+	}
+
+	/**
+	 * Render the settings page for this plugin.
+	 *
+	 * @since    1.0.0
+	 */
+
+	public function display_plugin_setup_page() {
+		include_once( 'views/cta-badges-admin-display.php' );
+	}
+
 	/**
 	 * Sanitized and saves the post featured footer image meta data specific with this post.
 	 *
@@ -133,16 +169,16 @@ class Acme_Footer_Image {
 	 */
 	public function save_post( $post_id ) {
 
-		if ( isset( $_REQUEST['footer-thumbnail-src'] ) ) {
-			update_post_meta( $post_id, 'footer-thumbnail-src', sanitize_text_field( $_REQUEST['footer-thumbnail-src'] ) );
+		if ( isset( $_REQUEST['cta-badge-src'] ) ) {
+			update_post_meta( $post_id, 'cta-badge-src', sanitize_text_field( $_REQUEST['cta-badge-src'] ) );
 		}
 
-		if ( isset( $_REQUEST['footer-thumbnail-title'] ) ) {
-			update_post_meta( $post_id, 'footer-thumbnail-title', sanitize_text_field( $_REQUEST['footer-thumbnail-title'] ) );
+		if ( isset( $_REQUEST['cta-badge-title'] ) ) {
+			update_post_meta( $post_id, 'cta-badge-title', sanitize_text_field( $_REQUEST['cta-badge-title'] ) );
 		}
 
-		if ( isset( $_REQUEST['footer-thumbnail-alt'] ) ) {
-			update_post_meta( $post_id, 'footer-thumbnail-alt', sanitize_text_field( $_REQUEST['footer-thumbnail-alt'] ) );
+		if ( isset( $_REQUEST['cta-badge-alt'] ) ) {
+			update_post_meta( $post_id, 'cta-badge-alt', sanitize_text_field( $_REQUEST['cta-badge-alt'] ) );
 		}
 
 	}
@@ -154,33 +190,32 @@ class Acme_Footer_Image {
 	 * @param   string    $content    The content of the post.
 	 * @since   1.0.0
 	 */
-	public function the_content( $content ) {
+	public function cta_content() {
 
 		// We only care about appending the image to single pages
-		if ( is_single() ) {
+		if ( is_front_page() ) {
 
 			// In order to append an image, there has to be at least a source attribute
-			if ( '' !== ( $src = get_post_meta( get_the_ID(), 'footer-thumbnail-src', true ) ) ) {
+			if ( '' !== ( $src = get_post_meta( get_the_ID(), 'cta-badge-src', true ) ) ) {
 
 				// read the remaining attributes even if they are empty strings
-				$alt = get_post_meta( get_the_ID(), 'footer-thumbnail-alt', true );
-				$title = get_post_meta( get_the_ID(), 'footer-thumbnail-title', true );
+				$alt = get_post_meta( get_the_ID(), 'cta-badge-alt', true );
+				$title = get_post_meta( get_the_ID(), 'cta-badge-title', true );
 
 				// create the image element within its own container
-				$img_html = '<p id="footer-thumbnail">';
-					$img_html .= "<img src='$src' alt='$alt' title='$title' />";
-				$img_html .= '</p><!-- #footer-thumbnail -->';
-
-				// append it to the content
-				$content .= $img_html;
+				$img_html = '<div id="cta-badge">';
+				$img_html .= '<a href="javascript:;" data-reveal-id="groupModal">';
+				$img_html .= "<img src='$src' alt='$alt' title='$title' />";
+				$img_html .= '</a>';
+				$img_html .= '</div><!-- #cta-badge -->';
 
 			}
-
+			echo $img_html;
 		}
 
-		return $content;
-
 	}
+
+
 
 	/**
 	 * Renders the view that displays the contents for the meta box that for triggering
@@ -189,7 +224,7 @@ class Acme_Footer_Image {
 	 * @param    WP_Post    $post    The post object
 	 * @since    0.1.0
 	 */
-	public function display_featured_footer_image( $post ) {
+	public function display_cta_badge( $post ) {
 		include_once( dirname( __FILE__ ) . '/views/admin.php' );
 	}
 
